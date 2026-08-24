@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f5f7fa" media="(prefers-color-scheme: light)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Control de Clases">
+  <title>Control de Clases</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">Matías Montoya</div>
+        <h1 id="pageTitle">Control de Clases</h1>
+      </div>
+      <button class="icon-btn" id="settingsBtn" aria-label="Configuración">⚙︎</button>
+    </header>
+
+    <main id="view" class="view"></main>
+
+    <nav class="bottom-nav">
+      <button data-route="home" class="nav-item active"><span>⌂</span><small>Inicio</small></button>
+      <button data-route="classes" class="nav-item"><span>◉</span><small>Clases</small></button>
+      <button data-route="payments" class="nav-item"><span>$</span><small>Pagos</small></button>
+      <button data-route="reports" class="nav-item"><span>▤</span><small>Reportes</small></button>
+    </nav>
+  </div>
+
+  <dialog id="modal">
+    <form method="dialog" class="modal-card" id="modalCard"></form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
