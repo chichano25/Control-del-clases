@@ -8,6 +8,8 @@
   const cleanAmount = (value) => Number(value || 0) === 0 ? "" : String(value);
 
   function openClearSettings(){
+    const initialWasConfigured = Boolean(data.settings.initialBalanceLocked);
+
     openModal(`
       <div class="modal-head"><h2>Configuración</h2><button class="close-btn" value="cancel">×</button></div>
       <div class="form">
@@ -24,12 +26,11 @@
         <label>120 minutos<input id="r120" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 24.00" value="${cleanAmount(data.settings.durationRates["120"])}"></label>
 
         <div class="settings-section-title">Saldo inicial</div>
-        <div class="settings-help">Ingresa únicamente lo que el club ya le debía a Matías antes de empezar a usar esta app.</div>
+        <div class="settings-help">Es lo que el club ya le debía a Matías antes de empezar a usar la app. Puedes modificarlo después si necesitas corregirlo; el saldo y los reportes se recalculan automáticamente.</div>
         <div class="inline">
-          <label>Monto pendiente<input id="sInitial" type="number" step="0.01" inputmode="decimal" placeholder="Ej. 150.00" value="${cleanAmount(data.settings.initialBalance)}" ${data.settings.initialBalanceLocked?"disabled":""}></label>
-          <label>Fecha del saldo<input id="sInitialDate" type="date" value="${data.settings.initialBalanceDate||today()}" ${data.settings.initialBalanceLocked?"disabled":""}></label>
+          <label>Monto pendiente<input id="sInitial" type="number" step="0.01" inputmode="decimal" placeholder="Ej. 150.00" value="${cleanAmount(data.settings.initialBalance)}"></label>
+          <label>Fecha del saldo<input id="sInitialDate" type="date" value="${data.settings.initialBalanceDate||today()}"></label>
         </div>
-        ${data.settings.initialBalanceLocked?`<div class="banner">El saldo inicial ya fue guardado y está bloqueado. Si necesitas corregirlo, usa “Registrar ajuste”.</div>`:""}
 
         <button class="primary" type="button" id="saveSettings">Guardar configuración</button>
         <button class="secondary" type="button" id="addAdjustment">Registrar ajuste</button>
@@ -39,15 +40,29 @@
       </div>`);
 
     $("#saveSettings").onclick=()=>{
+      const previousBalance=Number(data.settings.initialBalance||0);
+      const previousDate=data.settings.initialBalanceDate||today();
+
       data.settings.ownerName=$("#sOwner").value.trim()||"Matías Montoya";
       data.settings.defaultDuration=Number($("#sDuration").value);
-      data.settings.durationRates={"60":$("#r60").value,"90":$("#r90").value,"120":$("#r120").value};
-      if(!data.settings.initialBalanceLocked){
-        data.settings.initialBalance=Number($("#sInitial").value||0);
-        data.settings.initialBalanceDate=$("#sInitialDate").value||today();
-        data.settings.initialBalanceLocked=true;
-        audit("configuró","saldo inicial","initial",`${fmtDate(data.settings.initialBalanceDate)} · ${money(data.settings.initialBalance)}`);
+      data.settings.durationRates={
+        "60":$("#r60").value||"0",
+        "90":$("#r90").value||"0",
+        "120":$("#r120").value||"0"
+      };
+
+      const newBalance=Number($("#sInitial").value||0);
+      const newDate=$("#sInitialDate").value||today();
+      data.settings.initialBalance=newBalance;
+      data.settings.initialBalanceDate=newDate;
+      data.settings.initialBalanceLocked=true;
+
+      if(!initialWasConfigured){
+        audit("configuró","saldo inicial","initial",`${fmtDate(newDate)} · ${money(newBalance)}`);
+      }else if(previousBalance!==newBalance || previousDate!==newDate){
+        audit("editó","saldo inicial","initial",`${fmtDate(previousDate)} · ${money(previousBalance)} → ${fmtDate(newDate)} · ${money(newBalance)}`);
       }
+
       closeModal();
       saveData();
     };
